@@ -100,14 +100,16 @@ DB_USER=root
 DB_PASSWORD=password
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=dbname
+DB_NAME=management_inventaris
 ```
 
-### 4. Set Up Data Sample
-Here is mySQL query for set up a data sample
 
-### 5. Run API
+### 4. Run API
 ```sh
 go run main.go
 ```
+
+### 5. Set Up Data Sample
+Here is mySQL query for set up a data sample  [Here](https://github.com/shofwanshiddiq/product-management-api/blob/main/script_insert_database.sql)
+
 
