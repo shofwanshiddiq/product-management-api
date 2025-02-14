@@ -116,4 +116,9 @@ go run main.go
 ### 5. Set Up Data Sample
 Here is mySQL query for set up a data sample  [Here](https://github.com/shofwanshiddiq/product-management-api/blob/main/script_insert_database.sql)
 
+### 5. Testing
+
+Import this Postman Collection for Testing in Postman
+https://github.com/shofwanshiddiq/product-management-api/blob/main/Assignment_Day_26%20.postman_collection.json
+
 
