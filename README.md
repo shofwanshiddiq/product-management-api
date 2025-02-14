@@ -19,6 +19,8 @@ Uses golang as main frameworks for build an API, with RESTful API for communicat
 * Golang (Gin-Gonic framework) 
 * MySQL (Database)
 * GORM (ORM for database operations)
+* Mutex (Locking file on download)
+* Buffer (Memory management for download file)
 
 # API Endpoints Documentation
 
