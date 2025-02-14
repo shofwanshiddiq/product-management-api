@@ -21,9 +21,11 @@ func main() {
 	db.AutoMigrate(&models.Produk{}, &models.Inventaris{}, &models.Pesanan{})
 
 	productController := contollers.NewProductController(db)
+	systemController := contollers.NewSysController(db)
 
 	api := r.Group("/api")
 	{
+		// Route Untuk CRUD Product
 		api.POST("/products", productController.CreateProduct)
 		api.GET("/products/:id", productController.GetProduct)
 		api.PUT("/products/:id", productController.UpdateProduct)
@@ -32,6 +34,10 @@ func main() {
 		api.PUT("/inventories/:id", productController.UpdateInventory)
 		api.POST("/orders", productController.CreateOrder)
 		api.GET("/orders/:id", productController.GetOrder)
+
+		// Route Untuk Download dan Upload File
+		api.POST("/upload", systemController.UploadImage)
+		api.GET("/download", systemController.DownloadImage)
 	}
 
 	r.Run(":8080")
