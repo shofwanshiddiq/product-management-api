@@ -8,6 +8,8 @@ This is a RESTful API built using Golang with the Gin framework, GORM as the ORM
 * Create, Update, and Get Inventory
 * One to Many relations for Product ID
 * GORM-based relational database modeling
+* Upload a File with file size and format validation
+* Download file with mutex for lock file, and buffer for memory management
 
 # Technologies
 ![Golang](https://img.shields.io/badge/golang-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)  ![REST API](https://img.shields.io/badge/restapi-%23000000.svg?style=for-the-badge&logo=swagger&logoColor=white)   ![MySQL](https://img.shields.io/badge/mysql-%234479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)  
@@ -30,6 +32,8 @@ Uses golang as main frameworks for build an API, with RESTful API for communicat
 | **PUT**    | `/inventories/:id`         | Update inventory details by ID                   | Inventory Table    |
 | **POST**   | `/orders`                  | Create a new order                               | Orders Table       |
 | **GET**    | `/orders/:id`              | Get details of a specific order by ID            | Orders Table       |
+| **POST**   | `/upload`                  | Upload an Image of Product                              | -       |
+| **GET**    | `/download`              | Download an Image of Product            | -      |
 
 
 # Database Structure
