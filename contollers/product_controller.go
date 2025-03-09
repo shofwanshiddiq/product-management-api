@@ -1,10 +1,16 @@
 package contollers
 
 import (
+	"encoding/json"
+	"log"
 	"management-inventaris/models"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"github.com/redis/go-redis/v9"
 )
 
 /*
@@ -25,11 +31,12 @@ import (
 */
 
 type ProductController struct {
-	db *gorm.DB
+	db          *gorm.DB
+	redisClient *redis.Client
 }
 
-func NewProductController(db *gorm.DB) *ProductController {
-	return &ProductController{db: db}
+func NewProductController(db *gorm.DB, redisClient *redis.Client) *ProductController {
+	return &ProductController{db: db, redisClient: redisClient}
 }
 
 // Menambahkan Produk
@@ -51,12 +58,35 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 
 // Melihat Detail Produk Berdasarkan ID
 func (pc *ProductController) GetProduct(c *gin.Context) {
-	var produk models.Produk
+	ctx := c.Request.Context()
 	id := c.Param("id")
+	cacheKey := "product:" + id
+
+	// Check if product exists in Redis
+	cachedProduct, err := pc.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		log.Println("Cache hit for product ID:", id)
+		var produk models.Produk
+		json.Unmarshal([]byte(cachedProduct), &produk)
+		c.JSON(200, produk)
+		return
+	} else if err != redis.Nil {
+		log.Println("Redis error:", err)
+	}
+
+	// If not in cache, fetch from DB
+	var produk models.Produk
 	result := pc.db.First(&produk, id)
 	if result.Error != nil {
-		c.JSON(404, gin.H{"error": result.Error.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
 		return
+	}
+
+	// Store product in Redis for 5 minutes
+	productJSON, _ := json.Marshal(produk)
+	err = pc.redisClient.Set(ctx, cacheKey, productJSON, 5*time.Minute).Err()
+	if err != nil {
+		log.Println("Failed to cache product:", err)
 	}
 
 	c.JSON(200, produk)
@@ -101,12 +131,35 @@ func (pc *ProductController) DeleteProduct(c *gin.Context) {
 
 // Melihat Tingkat Stok Untuk Suatu Produk
 func (pc *ProductController) GetInventory(c *gin.Context) {
-	var inventaris models.Inventaris
+	ctx := c.Request.Context()
 	id := c.Param("id")
+	cacheKey := "inventory:" + id
+
+	// Cek apakah data ada di Redis
+	cachedInventory, err := pc.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		log.Println("Cache hit for inventory ID:", id)
+		var inventaris models.Inventaris
+		json.Unmarshal([]byte(cachedInventory), &inventaris)
+		c.JSON(200, inventaris)
+		return
+	} else if err != redis.Nil {
+		log.Println("Redis error:", err)
+	}
+
+	// Jika tidak ada di cache, ambil dari database
+	var inventaris models.Inventaris
 	result := pc.db.First(&inventaris, id)
 	if result.Error != nil {
 		c.JSON(404, gin.H{"error": result.Error.Error()})
 		return
+	}
+
+	// Simpan data ke Redis selama 5 menit
+	inventoryJSON, _ := json.Marshal(inventaris)
+	err = pc.redisClient.Set(ctx, cacheKey, inventoryJSON, 5*time.Minute).Err()
+	if err != nil {
+		log.Println("Failed to cache inventory:", err)
 	}
 
 	c.JSON(200, inventaris)
@@ -155,12 +208,35 @@ func (pc *ProductController) CreateOrder(c *gin.Context) {
 
 // Mengambil Detail Pesanan Berdasarkan ID
 func (pc *ProductController) GetOrder(c *gin.Context) {
-	var pesanan models.Pesanan
+	ctx := c.Request.Context()
 	id := c.Param("id")
+	cacheKey := "order:" + id
+
+	// Cek apakah data ada di Redis
+	cachedOrder, err := pc.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		log.Println("Cache hit for order ID:", id)
+		var pesanan models.Pesanan
+		json.Unmarshal([]byte(cachedOrder), &pesanan)
+		c.JSON(200, pesanan)
+		return
+	} else if err != redis.Nil {
+		log.Println("Redis error:", err)
+	}
+
+	// Jika tidak ada di cache, ambil dari database
+	var pesanan models.Pesanan
 	result := pc.db.First(&pesanan, id)
 	if result.Error != nil {
 		c.JSON(404, gin.H{"error": result.Error.Error()})
 		return
+	}
+
+	// Simpan data ke Redis selama 5 menit
+	orderJSON, _ := json.Marshal(pesanan)
+	err = pc.redisClient.Set(ctx, cacheKey, orderJSON, 5*time.Minute).Err()
+	if err != nil {
+		log.Println("Failed to cache order:", err)
 	}
 
 	c.JSON(200, pesanan)

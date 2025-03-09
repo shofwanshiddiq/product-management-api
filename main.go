@@ -1,13 +1,32 @@
 package main
 
 import (
+	"context"
+	"log"
 	"management-inventaris/config"
 	"management-inventaris/contollers"
 	"management-inventaris/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
+
+var redisClient *redis.Client
+
+func initRedis() {
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	// Check Redis connection
+	_, err := redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatalf("Failed to connect to Redis: %v", err)
+	}
+
+	log.Println("Connected to Redis")
+}
 
 func main() {
 	err := godotenv.Load(".env")
@@ -15,12 +34,14 @@ func main() {
 		panic("Failed to load .env file")
 	}
 
+	initRedis() // Initialize Redis
+
 	r := gin.Default()
 
 	db := config.ConnectDatabase()
 	db.AutoMigrate(&models.Produk{}, &models.Inventaris{}, &models.Pesanan{})
 
-	productController := contollers.NewProductController(db)
+	productController := contollers.NewProductController(db, redisClient)
 	systemController := contollers.NewSysController(db)
 
 	api := r.Group("/api")
