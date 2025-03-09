@@ -6,13 +6,15 @@ This is a RESTful API built using Golang with the Gin framework, GORM as the ORM
 * Create, Update, and Get Product
 * Create, and Get a Product Transaction
 * Create, Update, and Get Inventory
+* Redis Memory Cache to Improve performance
 * One to Many relations for Product ID
 * GORM-based relational database modeling
 * Upload a File with file size and format validation
 * Download file with mutex for lock file, and buffer for memory management
 
 # Technologies
-![Golang](https://img.shields.io/badge/golang-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)  ![REST API](https://img.shields.io/badge/restapi-%23000000.svg?style=for-the-badge&logo=swagger&logoColor=white)   ![MySQL](https://img.shields.io/badge/mysql-%234479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)  
+![Golang](https://img.shields.io/badge/golang-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)  ![REST API](https://img.shields.io/badge/restapi-%23000000.svg?style=for-the-badge&logo=swagger&logoColor=white)  ![MySQL](https://img.shields.io/badge/mysql-%234479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)  ![Redis](https://img.shields.io/badge/redis-%23DC382D.svg?style=for-the-badge&logo=redis&logoColor=white)  
+
 
 Uses golang as main frameworks for build an API, with RESTful API for communication with mySQL database
 
@@ -21,6 +23,7 @@ Uses golang as main frameworks for build an API, with RESTful API for communicat
 * GORM (ORM for database operations)
 * Mutex (Locking file on download)
 * Buffer (Memory management for download file)
+* Redis Memory Cache
 
 # API Endpoints Documentation
 
@@ -96,6 +99,7 @@ go get -u github.com/gin-gonic/gin
 go get -u gorm.io/gorm
 go get -u gorm.io/driver/mysql
 go get -u github.com/joho/godotenv
+go get github.com/redis/go-redis/v9  
 ```
 
 ### 3. Configure Database
@@ -109,16 +113,30 @@ DB_PORT=3306
 DB_NAME=management_inventaris
 ```
 
+### 4. Start Redis on Port: 6379
+Redis memory cache for resources management. Start using Docker / WSL
 
-### 4. Run API
+* Using Docker
+```sh
+ docker run --name redis-container -d -p 6379:6379 redis   
+```
+* Using WSL
+```sh
+sudo apt update
+sudo apt install redis-server
+sudo service redis-server start
+```
+
+
+### 5. Run API
 ```sh
 go run main.go
 ```
 
-### 5. Set Up Data Sample
+### 6. Set Up Data Sample
 Here is mySQL query for set up a data sample  [Here](https://github.com/shofwanshiddiq/product-management-api/blob/main/script_insert_database.sql)
 
-### 5. Testing
+### 7. Testing
 
 Import this Postman Collection for Testing in Postman
 https://github.com/shofwanshiddiq/product-management-api/blob/main/Assignment_Day_26%20.postman_collection.json
